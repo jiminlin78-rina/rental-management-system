@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { User, ArrowRight } from "lucide-react"
@@ -5,132 +7,97 @@ import Link from "next/link"
 
 export default function ManagerLoginPage() {
   const [managerName, setManagerName] = useState("")
-  const [isLoading, setIsLoading] =useState(false)
-  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
-  // 預設的物管列表（從之前的分析結果）
   const defaultManagers = [
     "蔡榮哲", "呂軒妤", "吳承洧", "粘心如", "李印強",
     "吳明蒼", "温昱賢", "紀亮宇", "侯炳安", "劉冠甫",
     "張詠霈", "後昌加盟", "林凡淯"
   ]
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!managerName.trim()) {
-      setError("請輸入物管姓名")
-      return
-    }
-
+  const handleLogin = (name: string) => {
     setIsLoading(true)
-    setError("")
+    // 暫時用 localStorage 儲存登入狀態
+    localStorage.setItem('managerLogin', name)
+    localStorage.setItem('managerLoginTimestamp', String(Date.now()))
 
-    try {
-      // 模擬登入 - 之後會替換成真實 API 呼叫
-      // 暫時用 localStorage 儲存登入狀態
-      localStorage.setItem('managerLogin', 'true')
-      localStorage.setItem('managerName', managerName)
-
-      // 跳轉到 dashboard
+    // 跳轉到房東頁面
+    setTimeout(() => {
       window.location.href = '/landlord'
-
-    } catch (err) {
-      setError("登入失敗，請確認姓名")
-      setIsLoading(false)
-    }
+    }, 500)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] p-4">
+    <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="max-w-md w-full"
       >
-        {/* Logo / 標題 */}
+        {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#C9A962] mb-2">
-            宜居包租
-          </h1>
-          <p className="text-gray-600">物管登入系統</p>
+          <div className="w-20 h-20 bg-gradient-to-br from-[#C9A962] to-[#A8873A] rounded-2xl mx-auto mb-4 flex items-center justify-center">
+            <span className="text-4xl text-white font-bold">宜</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">物管登入</h1>
+          <p className="text-gray-600">選擇您的姓名或輸入</p>
         </div>
 
-        {/* 登入表單 */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <form onSubmit={handleLogin}>
-            {/* 姓名輸入 */}
-            <div className="mb-6">
-              <label className="block text-gray-700 mb-2 font-medium">
-                物管姓名
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={managerName}
-                  onChange={(e) => setManagerName(e.target.value)}
-                  placeholder="請輸入姓名，例如：吳明蒼"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg
-                           focus:outline-none focus:ring-2 focus:ring-[#C9A962] focus:border-transparent"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
+        {/* 快速選擇 */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm mb-4">
+          <div className="flex items-center gap-2 mb-4 text-gray-700">
+            <User className="w-5 h-5" />
+            <span className="font-medium">快速選擇</span>
+          </div>
 
-            {/* 錯誤訊息 */}
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                {error}
-              </div>
-            )}
+          <div className="grid grid-cols-3 gap-2">
+            {defaultManagers.map((manager) => (
+              <button
+                key={manager}
+                onClick={() => handleLogin(manager)}
+                disabled={isLoading}
+                className="px-3 py-2 text-sm bg-gray-50 hover:bg-[#C9A962] hover:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {manager}
+              </button>
+            ))}
+          </div>
+        </div>
 
-            {/* 下拉提示 */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-500 mb-2">已有物管：</p>
-              <div className="flex flex-wrap gap-2">
-                {defaultManagers.map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => setManagerName(name)}
-                    className="px-3 py-1 text-sm bg-[#FAF8F5] text-[#C9A962] rounded-full
-                             hover:bg-[#C9A962] hover:text-white transition-colors"
-                  >
-                    {name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 登入按鈕 */}
-            <button
-              type="submit"
+        {/* 手動輸入 */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            或輸入姓名
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={managerName}
+              onChange={(e) => setManagerName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && managerName && handleLogin(managerName)}
+              placeholder="請輸入您的姓名"
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C9A962]"
               disabled={isLoading}
-              className="w-full bg-[#C9A962] text-white py-3 rounded-lg font-medium
-                       hover:bg-[#A8873A] transition-colors flex items-center justify-center gap-2
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            />
+            <button
+              onClick={() => managerName && handleLogin(managerName)}
+              disabled={isLoading || !managerName}
+              className="px-4 py-2 bg-[#C9A962] text-white rounded-lg hover:bg-[#A8873A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
-                <span className="animate-pulse">登入中...</span>
-              ) : (
-                <>
-                  <span>登入</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
+              <ArrowRight className="w-5 h-5" />
             </button>
-          </form>
+          </div>
         </div>
 
-        {/* 返回 */}
-        <div className="text-center mt-6">
+        {/* 返回首頁 */}
+        <div className="mt-6 text-center">
           <Link
             href="/"
-            className="text-[#C9A962] hover:underline text-sm"
+            className="text-gray-600 hover:text-[#C9A962] transition-colors inline-flex items-center gap-2"
           >
             返回首頁
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </motion.div>
