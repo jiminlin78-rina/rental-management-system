@@ -17,7 +17,7 @@ export default function PropertyBillsPage({ params }: { params: Promise<{ proper
 
   // 標記已繳的處理函數
   const handleMarkPaid = async (billId: string) => {
-    const bill = filteredBills.find(b => b._id === billId)
+    const bill = filteredBills.find((b: any) => b._id === billId)
     if (!bill) return
 
     const remainingAmount = bill.amount - bill.paidAmount
