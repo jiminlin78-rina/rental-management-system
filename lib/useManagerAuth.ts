@@ -57,7 +57,7 @@ export function logoutManager() {
 }
 
 export function loginManager(managerName: string) {
-  localStorage.setItem('managerLog in', managerName)
+  localStorage.setItem('managerLogin', managerName)
   localStorage.setItem('managerLoginTimestamp', String(Date.now()))
   window.location.href = '/landlord'
 }
