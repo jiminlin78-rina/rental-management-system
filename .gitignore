@@ -1,0 +1,50 @@
+# Dependencies
+node_modules
+.next
+out
+
+# Environment variables
+.env
+.env*.local
+.env.local
+.env.*.local
+
+# Convex
+.convex/local
+
+# Debug scripts
+debug-*.mjs
+*.mjs
+
+# Testing
+coverage
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
+
+# Ragic API key（敏感）
+analyze-*.js
+create-*.js
+fetch-*.js
+sync-*.js
+verify-*.js
+convex-stats.js
+manager-to-landlord.json

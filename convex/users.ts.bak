@@ -1,0 +1,229 @@
+import { v } from "convex/values"
+import { mutation, query } from "./_generated/server"
+
+// 建立/同步用戶
+export const upsertUser = mutation({
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    role: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first()
+
+    const now = Date.now()
+
+    if (existingUser) {
+      // 更新現有用戶
+      await ctx.db.patch(existingUser._id, {
+        email: args.email,
+        name: args.name,
+        avatarUrl: args.avatarUrl,
+        role: args.role ?? existingUser.role,
+        updatedAt: now,
+      })
+      return existingUser._id
+    } else {
+      // 建立新用戶
+      const userId = await ctx.db.insert("users", {
+        clerkId: args.clerkId,
+        email: args.email,
+        name: args.name,
+        role: args.role ?? "tenant", // 預設是房客
+        avatarUrl: args.avatarUrl,
+        createdAt: now,
+        updatedAt: now,
+      })
+      return userId
+    }
+  },
+})
+
+// 根據 Clerk ID 取得用戶（包含關聯的 landlord/tenant ID）
+export const getUserByClerkId = query({
+  args: {
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first()
+
+    if (!user) return null
+
+    // 根據角色查找關聯的 landlord 或 tenant ID
+    if (user.role === "landlord") {
+      const landlord = await ctx.db
+        .query("landlords")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .first()
+
+      return {
+        ...user,
+        landlordId: landlord?._id,
+        tenantId: null,
+      }
+    } else if (user.role === "tenant") {
+      const tenant = await ctx.db
+        .query("tenants")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .first()
+
+      return {
+        ...user,
+        landlordId: null,
+        tenantId: tenant?._id,
+        roomId: tenant?.roomId,
+      }
+    }
+
+    return {
+      ...user,
+      landlordId: null,
+      tenantId: null,
+    }
+  },
+})
+
+// 取得用戶角色
+export const getUserRole = query({
+  args: {
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first()
+
+    return user?.role ?? null
+  },
+})
+
+// 初始化房東資料
+export const initializeLandlord = mutation({
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    phone: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // 先建立或更新用戶
+    const userId = await ctx.runMutation(api.users.upsertUser, {
+      clerkId: args.clerkId,
+      email: args.email,
+      name: args.name,
+      role: "landlord",
+    })
+
+    // 檢查是否已有 landlord 記錄
+    const existingLandlord = await ctx.db
+      .query("landlords")
+      .withIndex("by_user", (q) => q.eq("userId", userId as any))
+      .first()
+
+    if (!existingLandlord) {
+      // 建立新的 landlord 記錄
+      const now = Date.now()
+      const landlordId = await ctx.db.insert("landlords", {
+        userId: userId as any,
+        phone: args.phone,
+        createdAt: now,
+        updatedAt: now,
+      })
+      return landlordId
+    }
+
+    return existingLandlord._id
+  },
+})
+
+// 初始化房客資料
+export const initializeTenant = mutation({
+  args: {
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.optional(v.string()),
+    phone: v.string(),
+    roomId: v.optional(v.id("rooms")),
+    leaseStartDate: v.number(),
+    leaseEndDate: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // 先建立或更新用戶
+    const userId = await ctx.runMutation(api.users.upsertUser, {
+      clerkId: args.clerkId,
+      email: args.email,
+      name: args.name,
+      role: "tenant",
+    })
+
+    // 檢查是否已有 tenant 記錄
+    const existingTenant = await ctx.db
+      .query("tenants")
+      .withIndex("by_user", (q) => q.eq("userId", userId as any))
+      .first()
+
+    if (!existingTenant) {
+      // 建立新的 tenant 記錄
+      const now = Date.now()
+      const tenantId = await ctx.db.insert("tenants", {
+        userId: userId as any,
+        phone: args.phone,
+        roomId: args.roomId as any,
+        leaseStartDate: args.leaseStartDate,
+        leaseEndDate: args.leaseEndDate,
+        createdAt: now,
+        updatedAt: now,
+      })
+      return tenantId
+    }
+
+    return existingTenant._id
+  },
+})
+
+// 取得第一個房東（開發測試用）
+export const getFirstLandlord = query({
+  args: {},
+  handler: async (ctx) => {
+    const landlord = await ctx.db.query("landlords").first()
+    if (!landlord) return null
+
+    const user = await ctx.db.get(landlord.userId)
+    return {
+      _id: user._id,
+      landlordId: landlord._id,  // 返回 landlord ID
+      clerkId: user.clerkId,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }
+  },
+})
+
+// 取得第一個房客（開發測試用）
+export const getFirstTenant = query({
+  args: {},
+  handler: async (ctx) => {
+    const tenant = await ctx.db.query("tenants").first()
+    if (!tenant) return null
+
+    const user = await ctx.db.get(tenant.userId)
+    return {
+      _id: user._id,
+      tenantId: tenant._id,  // 返回 tenant ID
+      clerkId: user.clerkId,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }
+  },
+})
