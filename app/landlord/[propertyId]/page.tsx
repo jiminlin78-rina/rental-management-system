@@ -85,11 +85,11 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ prope
 
   const property: PropertyWithRooms = {
     ...propertyData,
-    propertyType: propertyData.rooms && propertyData.rooms.length > 0 && propertyData.rooms.every(r => r.type === 'entire_floor')
+    propertyType: propertyData.rooms && propertyData.rooms.length > 0 && propertyData.rooms.every((r: any) => r.type === 'entire_floor')
       ? 'entire_floor'
       : 'shared',
-    totalRent: propertyData.rooms.reduce((sum, r) => sum + r.monthlyRent, 0),
-    totalManagementFee: propertyData.rooms.reduce((sum, r) => sum + (r.managementFee || 0), 0),
+    totalRent: propertyData.rooms.reduce((sum: any, r: any) => sum + r.monthlyRent, 0),
+    totalManagementFee: propertyData.rooms.reduce((sum: any, r: any) => sum + (r.managementFee || 0), 0),
   }
 
   const stats = {
@@ -222,7 +222,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ prope
           </Link>
         </motion.div>
 
-        <MapView
+        _        <MapView propertyId={propertyId}
           rooms={property.rooms}
           roomsByFloor={stats.roomsByFloor}
           propertyType={property.propertyType}
@@ -232,7 +232,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ prope
   )
 }
 
-function MapView({ rooms, roomsByFloor, propertyType }: { rooms: Room[]; roomsByFloor: [string, Room[]][]; propertyType: 'entire_floor' | 'shared' }) {
+function MapView({ rooms, roomsByFloor, propertyType, propertyId }: { rooms: Room[]; roomsByFloor: [string, Room[]][]; propertyType: 'entire_floor' | 'shared'; propertyId: string }) {
   return (
     <div className="space-y-6">
       {roomsByFloor.length === 0 ? (
@@ -259,7 +259,7 @@ function MapView({ rooms, roomsByFloor, propertyType }: { rooms: Room[]; roomsBy
               {/* 分租：顯示房間列表圖表 */}
               <div className={`grid ${propertyType === 'entire_floor' ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'} gap-3`}>
                 {floorRooms.map((room) => (
-                  <Link key={room._id} href={`/landlord/${rooms[0].propertyId}/rooms/${room._id}`}>
+                  <Link key={room._id} href={`/landlord/${propertyId}/rooms/${room._id}`}>
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}

@@ -30,7 +30,7 @@ export default function PropertyBillsPage({ params }: { params: Promise<{ proper
 
     setMarkingPaid(billId)
     try {
-      await markBillPaid({ billId, paidAmount: remainingAmount })
+      await markBillPaid({ billId: billId as any, paidAmount: remainingAmount })
       window.location.reload()
     } catch (err) {
       console.error('標記失敗:', err)
@@ -47,7 +47,7 @@ export default function PropertyBillsPage({ params }: { params: Promise<{ proper
     }
 
     const headers = ['房客', '帳單月份', '房間', '租金', '管理費', '水電費', '總額', '已繳', '未繳', '狀態', '到期日']
-    const rows = filteredBills.map(bill => [
+    const rows = filteredBills.map((bill: any) => [
       bill.tenantName,
       bill.billMonth,
       bill.roomNumber,
@@ -93,7 +93,7 @@ export default function PropertyBillsPage({ params }: { params: Promise<{ proper
   // 取得所有月份
   const availableMonths = useMemo(() => {
     if (!allBills) return []
-    const months = [...new Set(allBills.map(b => b.billMonth))].sort().reverse()
+    const months = [...new Set(allBills.map((b: any) => b.billMonth))].sort().reverse()
     return months
   }, [allBills])
 
