@@ -110,7 +110,7 @@ export default function RoomDetailPage({ params }: { params: Promise<{ propertyI
       {/* Header */}
       <header className="sticky top-0 z-40 bg-primary-bg/80 backdrop-blur-md border-b border-border-subtle">
         <div className="px-4 py-4 flex items-center gap-3">
-          <Link href={`/landlord/${params.propertyId}`}>
+          <Link href={`/landlord/${propertyId}`}>
             <button className="p-2 hover:bg-border-subtle rounded-lg transition-colors">
               <ArrowLeft className="w-5 h-5 text-text-secondary" />
             </button>
