@@ -1,11 +1,24 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Noto_Sans_TC } from 'next/font/google'
+import { Noto_Serif_TC } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { ConvexProviders } from '@/components/providers'
 import { cn } from '@/lib/utils'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
+const notoSans = Noto_Sans_TC({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  variable: '--font-body',
+  display: 'swap',
+})
+
+const notoSerif = Noto_Serif_TC({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-heading',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: '宜居 - 包租代管系統',
@@ -20,10 +33,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <ConvexProviders>
-        <html lang="zh-TW" suppressHydrationWarning>
+        <html lang="zh-TW" suppressHydrationWarning className={`${notoSans.variable} ${notoSerif.variable}`}>
           <body className={cn(
-            'min-h-screen bg-primary-bg font-sans antialiased',
-            inter.variable
+            'min-h-screen bg-primary-bg font-body antialiased'
           )}>
             {children}
           </body>

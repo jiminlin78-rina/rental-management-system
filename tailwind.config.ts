@@ -27,8 +27,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        heading: ['"Noto Serif TC"', 'serif'],
-        body: ['"Noto Sans TC"', 'sans-serif'],
+        heading: ['var(--font-heading)', '"Noto Serif TC"', 'serif'],
+        body: ['var(--font-body)', '"Noto Sans TC"', 'sans-serif'],
         number: ['"Lato"', 'sans-serif'],
       },
       boxShadow: {
