@@ -1,6 +1,3 @@
-/* Google Fonts - 直接用 @import 載入 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Noto+Serif+TC:wght@500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +8,7 @@
   }
 
   html {
-    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-family: "Noto Sans TC", sans-serif;
     @apply antialiased;
   }
 
@@ -23,10 +20,6 @@
 }
 
 @layer components {
-  .font-heading {
-    font-family: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
-  }
-
   .card {
     background-color: #FFFDF9;
     @apply rounded-2xl shadow-sm;

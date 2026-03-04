@@ -14,7 +14,7 @@
     "convex": "^1.17.3",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.447.0",
-    "next": "^15.5.12",
+    "next": "^15.1.6",
     "puppeteer": "^24.37.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
