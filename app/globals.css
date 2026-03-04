@@ -8,7 +8,7 @@
   }
 
   html {
-    font-family: "Noto Sans TC", sans-serif;
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
     @apply antialiased;
   }
 
@@ -20,6 +20,10 @@
 }
 
 @layer components {
+  .font-heading {
+    font-family: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", serif;
+  }
+
   .card {
     background-color: #FFFDF9;
     @apply rounded-2xl shadow-sm;
